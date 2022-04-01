@@ -20,14 +20,26 @@
 
 module ice_ocean_flux_exchange_mod
 
-!! FMS
-  use FMS
-  use FMSconstants, only: HLF, HLV, CP_OCEAN
-!! Components
+  use mpp_mod,             only: mpp_error, FATAL, mpp_set_current_pelist, stdout
+  use mpp_mod,             only: mpp_clock_id, mpp_clock_begin, mpp_clock_end
+  use mpp_mod,             only: CLOCK_COMPONENT, CLOCK_ROUTINE, mpp_sum, mpp_max
+  use constants_mod,       only: HLF, HLV, CP_OCEAN
+  use mpp_domains_mod,     only: mpp_get_compute_domain, operator(.EQ.), mpp_redistribute
+  use mpp_parameter_mod,   only: AGRID
+  use fms_mod,             only: clock_flag_default
+  use data_override_mod,   only: data_override
+  use time_manager_mod,    only: time_type
+  use diag_manager_mod,    only: send_data
   use ice_model_mod,       only: ice_data_type, ocean_ice_boundary_type
   use ocean_model_mod,     only: ocean_public_type, ice_ocean_boundary_type
   use ocean_model_mod,     only: ocean_state_type, ocean_model_data_get
   use ocean_model_mod,     only: ocean_model_init_sfc
+  use stock_constants_mod, only: Ice_stock, Ocn_stock, ISTOCK_HEAT, ISTOCK_WATER
+  use stock_constants_mod, only: ISTOCK_BOTTOM, ISTOCK_SIDE, ISTOCK_TOP, ISTOCK_SALT
+  use coupler_types_mod,   only: coupler_1d_bc_type, coupler_type_spawn
+  use coupler_types_mod,   only: coupler_type_initialized, coupler_type_set_diags
+  use coupler_types_mod,   only: coupler_type_send_data, coupler_type_data_override
+  use coupler_types_mod,   only: coupler_type_copy_data, coupler_type_redistribute_data
 
   implicit none ; private
 
@@ -148,6 +160,12 @@ contains
     if (associated(Ice%mass_berg)) then
       allocate( ice_ocean_boundary%mass_berg  (is:ie,js:je) ) ;     ice_ocean_boundary%mass_berg = 0.0
     endif
+    ! Allocate PIK_basal fields, if option is true in sea ice control structure
+    if (Ice%sCS%PIK_basal) then
+      allocate( ice_ocean_boundary%basal      (is:ie,js:je) ) ;     ice_ocean_boundary%basal = 0.0
+      allocate( ice_ocean_boundary%basal_hflx (is:ie,js:je))  ;     ice_ocean_boundary%basal_hflx = 0.0
+    endif
+
     ! Copy the stagger indication variables from the ice processors the ocean
     ! PEs and vice versa.  The defaults are large negative numbers, so the
     ! global max here picks out only values that have been set on active PEs.
