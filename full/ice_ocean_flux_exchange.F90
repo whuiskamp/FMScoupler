@@ -20,7 +20,7 @@
 
 module ice_ocean_flux_exchange_mod
 
-  use mpp_mod,             only: mpp_error, FATAL, mpp_set_current_pelist, stdout
+  use mpp_mod,             only: mpp_error, FATAL, NOTE, mpp_set_current_pelist, stdout
   use mpp_mod,             only: mpp_clock_id, mpp_clock_begin, mpp_clock_end
   use mpp_mod,             only: CLOCK_COMPONENT, CLOCK_ROUTINE, mpp_sum, mpp_max
   use constants_mod,       only: HLF, HLV, CP_OCEAN
@@ -164,6 +164,9 @@ contains
     if (Ice%sCS%PIK_basal) then
       allocate( ice_ocean_boundary%basal      (is:ie,js:je) ) ;     ice_ocean_boundary%basal = 0.0
       allocate( ice_ocean_boundary%basal_hflx (is:ie,js:je))  ;     ice_ocean_boundary%basal_hflx = 0.0
+      call mpp_error(NOTE,"Basal fields allocated to IOB")
+    else
+      call mpp_error(NOTE,"Basal fields NOT allocated to IOB") 
     endif
 
     ! Copy the stagger indication variables from the ice processors the ocean
