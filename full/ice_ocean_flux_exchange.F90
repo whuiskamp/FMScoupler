@@ -372,6 +372,10 @@ contains
       call data_override('OCN', 'area_berg',  Ice_Ocean_Boundary%area_berg , Time )
     if (ASSOCIATED(Ice_Ocean_Boundary%mass_berg)  ) &
       call data_override('OCN', 'mass_berg',  Ice_Ocean_Boundary%mass_berg , Time )
+    !!! PIK_basal !!!
+    if (ASSOCIATED(Ice_Ocean_Boundary%basal) ) &
+      call data_override('OCN', 'basal',      Ice_Ocean_Boundary%basal,      Time)
+      call data_override('OCN', 'basal_hflx', Ice_Ocean_Boundary%basal_hflx, Time)
 
     ! Extra fluxes
     call coupler_type_data_override('OCN', Ice_Ocean_Boundary%fluxes, Time )
