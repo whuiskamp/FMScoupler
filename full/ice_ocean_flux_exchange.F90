@@ -376,7 +376,7 @@ contains
     if (ASSOCIATED(Ice_Ocean_Boundary%basal) ) &
       call data_override('OCN', 'basal',      Ice_Ocean_Boundary%basal,      Time)
       call data_override('OCN', 'basal_hflx', Ice_Ocean_Boundary%basal_hflx, Time)
-      call mpp_error(NOTE,'Basal fluxes read in from data_override')
+      !call mpp_error(NOTE,'Basal fluxes read in from data_override')
     ! Extra fluxes
     call coupler_type_data_override('OCN', Ice_Ocean_Boundary%fluxes, Time )
 
